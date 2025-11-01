@@ -1,0 +1,89 @@
+{
+  "name": "sangara-wholesalers-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "main": "public/electron.js",
+  "homepage": "./",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "electron:start": "concurrently \"npm start\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron:pack": "npm run build && electron-builder --dir",
+    "electron:dist": "npm run build && electron-builder"
+  },
+  "dependencies": {
+    "axios": "^1.0.0",
+    "moment": "^2.30.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.0.0",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^5.1.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "concurrently": "^8.2.2",
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.4.7",
+    "wait-on": "^7.2.0"
+  },
+  "description": "Wholesale Management System for Sangara Wholesalers",
+  "author": "Tyllen Aziz <your.email@example.com>",
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ],
+    "rules": {
+      "react-hooks/exhaustive-deps": "warn"
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "build": {
+    "appId": "com.yourcompany.sangara-wholesalers",
+    "productName": "Sangara Wholesalers",
+    "files": [
+      "build/**/*",
+      "public/electron.js",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "assets",
+        "to": "assets"
+      }
+    ],
+    "directories": {
+      "buildResources": "assets",
+      "output": "dist"
+    },
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true
+    },
+    "asar": true
+  }
+}
