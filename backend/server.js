@@ -10,8 +10,8 @@ const app = express();
 // ✅ CORS Configuration
 // =========================
 const allowedOrigins = [
-  "https://sangarawholesalers.vercel.app", // your live frontend on Vercel
-  "http://localhost:5173", // allow local dev too
+  process.env.FRONTEND_URL || "https://sangarawholesalers.vercel.app", // your live frontend
+  "http://localhost:5173", // allow local dev
 ];
 
 app.use(
@@ -36,7 +36,7 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Request logging middleware
+// ✅ Request logging
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
@@ -46,10 +46,10 @@ app.use((req, res, next) => {
 // ✅ Base Route
 // =========================
 app.get('/', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'Welcome to Sangara Wholesalers API',
     version: '1.0.0',
-    status: 'active'
+    status: 'active',
   });
 });
 
@@ -94,8 +94,12 @@ app.use((req, res) => {
 // ✅ Server Startup
 // =========================
 const PORT = process.env.PORT || 5000;
+
+// Detect your Render public URL dynamically
+const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
-  console.log(`🌐 API URL: http://localhost:${PORT}`);
+  console.log(`🌐 API URL: ${RENDER_EXTERNAL_URL}`);
   console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
