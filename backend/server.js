@@ -6,8 +6,33 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// =========================
+// ✅ CORS Configuration
+// =========================
+const allowedOrigins = [
+  "https://sangarawholesalers.vercel.app", // your live frontend on Vercel
+  "http://localhost:5173", // allow local dev too
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.warn(`❌ Blocked by CORS: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
+// =========================
+// ✅ Middleware
+// =========================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -17,7 +42,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Basic route
+// =========================
+// ✅ Base Route
+// =========================
 app.get('/', (req, res) => {
   res.json({ 
     message: 'Welcome to Sangara Wholesalers API',
@@ -26,8 +53,9 @@ app.get('/', (req, res) => {
   });
 });
 
-// API Routes
-// API Routes
+// =========================
+// ✅ API Routes
+// =========================
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/categories', require('./routes/categoryRoutes'));
@@ -35,20 +63,22 @@ app.use('/api/suppliers', require('./routes/supplierRoutes'));
 app.use('/api/sales', require('./routes/salesRoutes'));
 app.use('/api/reports', require('./routes/reportRoutes'));
 app.use('/api/customers', require('./routes/customerRoutes'));
-app.use('/api/users', require('./routes/userRoutes')); // <-- ADD THIS LINE
-app.use('/api/settings', require('./routes/settingRoutes')); // <-- ADD THIS LINE
-app.use('/api/purchases', require('./routes/purchaseRoutes')); // <-- ADD THIS LINE
-app.use('/api/stock-adjustments', require('./routes/stockAdjustmentRoutes')); // <-- ADD THIS LINE
-app.use('/api/tax-rates', require('./routes/taxRateRoutes'));     // <-- ADD THIS LINE
-app.use('/api/discount-rules', require('./routes/discountRuleRoutes')); // <-- ADD THIS LINE
-app.use('/api/payment', require('./routes/paymentRoutes')); // <-- ADD THIS LINE
-// Error handling middleware
+app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/settings', require('./routes/settingRoutes'));
+app.use('/api/purchases', require('./routes/purchaseRoutes'));
+app.use('/api/stock-adjustments', require('./routes/stockAdjustmentRoutes'));
+app.use('/api/tax-rates', require('./routes/taxRateRoutes'));
+app.use('/api/discount-rules', require('./routes/discountRuleRoutes'));
+app.use('/api/payment', require('./routes/paymentRoutes'));
+
+// =========================
+// ✅ Error Handling
+// =========================
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
+  console.error('❌ Error:', err.message);
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal server error',
-    error: process.env.NODE_ENV === 'development' ? err : {}
   });
 });
 
@@ -56,12 +86,14 @@ app.use((err, req, res, next) => {
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Route not found'
+    message: 'Route not found',
   });
 });
 
+// =========================
+// ✅ Server Startup
+// =========================
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`🌐 API URL: http://localhost:${PORT}`);
