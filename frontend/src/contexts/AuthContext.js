@@ -1,8 +1,12 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
-// ✅ Use environment variable with fallback
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// ✅ Automatically detect environment (local vs production)
+const API_BASE_URL =
+  process.env.REACT_APP_API_URL ||
+  (window.location.hostname === 'localhost'
+    ? 'http://localhost:10000/api' // your local backend
+    : 'https://sangarawholesalers.onrender.com/api'); // your live backend on Render
 
 const AuthContext = createContext(null);
 
@@ -26,9 +30,8 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      // ✅ Call /api/auth/profile
       const response = await axios.get(`${API_BASE_URL}/auth/profile`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.data.success) {
@@ -52,10 +55,9 @@ export const AuthProvider = ({ children }) => {
   // ✅ Login function
   const login = async (username, password) => {
     try {
-      // ✅ Correct endpoint: /api/auth/login
-      const response = await axios.post(`${API_BASE_URL}/auth/login`, { 
-        username, 
-        password 
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+        username,
+        password,
       });
 
       if (response.data.success) {
@@ -65,10 +67,15 @@ export const AuthProvider = ({ children }) => {
         setUser(user);
         return { success: true, user };
       } else {
-        return { success: false, message: response.data.message || 'Login failed' };
+        return {
+          success: false,
+          message: response.data.message || 'Login failed',
+        };
       }
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed. Please check your connection.';
+      const message =
+        error.response?.data?.message ||
+        'Login failed. Please check your connection.';
       console.error('Login error:', error.response?.data || error.message);
       return { success: false, message };
     }
