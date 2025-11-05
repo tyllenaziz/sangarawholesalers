@@ -96,10 +96,61 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 5000;
 
 // Detect your Render public URL dynamically
-const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL ;
 
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`🌐 API URL: ${RENDER_EXTERNAL_URL}`);
   console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
+
+// =========================
+// ✅ Keep Server Alive (Render)
+// =========================
+if (process.env.NODE_ENV === 'production' && process.env.RENDER_EXTERNAL_URL) {
+  const https = require('https');
+  const http = require('http');
+  
+  const PING_INTERVAL = 8* 60 * 1000; // 10 minutes
+  
+  function pingServer() {
+    const url = new URL(RENDER_EXTERNAL_URL);
+    const protocol = url.protocol === 'https:' ? https : http;
+    
+    const options = {
+      hostname: url.hostname,
+      port: url.port,
+      path: '/',
+      method: 'GET',
+      timeout: 10000,
+    };
+
+    console.log(`🔄 Keep-alive ping at ${new Date().toISOString()}`);
+
+    const req = protocol.request(options, (res) => {
+      console.log(`✅ Keep-alive ping successful! Status: ${res.statusCode}`);
+      res.on('data', () => {});
+    });
+
+    req.on('error', (error) => {
+      console.error(`❌ Keep-alive ping failed:`, error.message);
+    });
+
+    req.on('timeout', () => {
+      console.error(`⏱️ Keep-alive ping timed out`);
+      req.destroy();
+    });
+
+    req.end();
+  }
+
+  // Start keep-alive pings
+  console.log('🚀 Starting keep-alive service...');
+  console.log(`⏰ Pinging every ${PING_INTERVAL / 1000 / 60} minutes`);
+  
+  // Initial ping after 2 minutes
+  setTimeout(pingServer, 2 * 60 * 1000);
+  
+  // Regular pings every 10 minutes
+  setInterval(pingServer, PING_INTERVAL);
+}
