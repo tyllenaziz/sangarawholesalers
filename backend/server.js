@@ -11,7 +11,7 @@ const app = express();
 // =========================
 const allowedOrigins = [
   process.env.FRONTEND_URL || "https://sangarawholesalers.vercel.app", // your live frontend
-  "http://localhost:5173", // allow local dev
+  "http://localhost:5173", "http://localhost:3000",// allow local dev
 ];
 
 app.use(
