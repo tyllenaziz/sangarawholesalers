@@ -150,11 +150,7 @@ const getNearExpiryProductsReport = async (req, res) => {
     const today = moment().format('YYYY-MM-DD');
     const futureDate = moment().add(daysAhead, 'days').format('YYYY-MM-DD');
 
-    console.log('=== Near Expiry Products Report Debug ===');
-    console.log('Today:', today);
-    console.log('Checking products expiring before:', futureDate);
-    console.log('Days ahead:', daysAhead);
-
+    
     // First, let's check if there are ANY products with expiry dates
     const [allProducts] = await db.query(
       `SELECT COUNT(*) as total, 
@@ -163,10 +159,7 @@ const getNearExpiryProductsReport = async (req, res) => {
        FROM products 
        WHERE is_active = true`
     );
-    console.log('Total active products:', allProducts[0].total);
-    console.log('Products with expiry dates:', allProducts[0].with_expiry);
-    console.log('Products with expiry dates and stock:', allProducts[0].with_expiry_and_stock);
-
+    
     // Check products with expiry dates in detail
     const [expiryCheck] = await db.query(
       `SELECT id, name, sku, expiry_date, quantity_in_stock, 
@@ -177,7 +170,7 @@ const getNearExpiryProductsReport = async (req, res) => {
        ORDER BY expiry_date ASC
        LIMIT 10`
     );
-    console.log('Sample products with expiry dates:', JSON.stringify(expiryCheck, null, 2));
+    
 
     // Main query - Products expiring within the specified days
     const [rows] = await db.query(
@@ -201,8 +194,6 @@ const getNearExpiryProductsReport = async (req, res) => {
       [daysAhead]
     );
 
-    console.log('Products found near expiry:', rows.length);
-    console.log('=== End Debug ===');
 
     res.json({
       success: true,
